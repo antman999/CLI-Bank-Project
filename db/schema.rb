@@ -10,14 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_20_164255) do
+ActiveRecord::Schema.define(version: 2020_05_21_143911) do
 
   create_table "banks", force: :cascade do |t|
     t.string "accounts"
-    t.string "preferred_accounts"
+    t.integer "monthly_fee"
+    t.string "interest_rate"
   end
 
-  create_table "userAccounts", force: :cascade do |t|
+  create_table "useraccounts", force: :cascade do |t|
     t.integer "user_id"
     t.integer "bank_id"
     t.integer "funds"
@@ -33,7 +34,7 @@ ActiveRecord::Schema.define(version: 2020_05_20_164255) do
     t.string "username"
     t.string "password"
     t.string "occupation"
-    t.integer "salary"
+    t.string "salary"
     t.string "phone_number"
   end
 

@@ -1,5 +1,6 @@
 require "tty-prompt"
 require 'tty-box'
+require 'tty-spinner'
 class CommandLineInterface
     def welcome 
         prompt = TTY::Prompt.new
@@ -7,7 +8,7 @@ class CommandLineInterface
             menu.enum '.'
           
             menu.choice 'Sign In' do sign_in_menu end
-            menu.choice 'No. I dont have an account' do create_account1 end
+            menu.choice 'No. I dont have an account' do create_profile end
             menu.choice 'exit' do end
             end
     end
@@ -15,25 +16,23 @@ class CommandLineInterface
         prompt = TTY::Prompt.new
        username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
        password = prompt.mask("Please enter your password")
-       name = username
-       pass = password
-       search = User.find_by(name: name, password: pass)
+       search = User.find_by(username: username, password: password)
        findauser = User.where(id: search).first
        if findauser
-        puts "Welcome back, #{name}."
+        puts "Welcome back, #{username}."
         menu
        else 
         prompt.select("Our record indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
             menu.enum '.'
           
             menu.choice 'Try Again' do sign_in_menu end
-            menu.choice 'Ok, lets open an account' do create_account end
+            menu.choice 'Ok, lets open an account' do create_profile end
             menu.choice 'Go Back'do welcome end
             end
         end
     end
 
-    def create_account1
+    def create_profile
         puts "Thank you for choosing Bank of NYC"
         puts 
         puts "First let's start by setting up your profile"
@@ -42,14 +41,62 @@ class CommandLineInterface
        name = prompt.ask('To start im going to need your name? =>')
        age = prompt.ask('Next, enter your age =>')
        id_num = prompt.ask('Enter your ID number as it appears on your ID card =>')
-       username1 = prompt.ask('To have access to your accounts you need to create a username =>')
+       @username1 = prompt.ask('To have access to your accounts you need to create a username =>')
        passkey = prompt.mask('We also need a password. =>')
        occupation = prompt.ask('Also what do you do for a living? =>')
        salary = prompt.ask('What is your total yearly income?(no need to write $ we will convert it.) =>')
        phone_num = prompt.ask('Please enter your phone number with no - just straight numbers we can you use this to retrive your password if you ever forget it. =>')
-       User.create(name: name, age:age, id_number: id_num, username:username1, password:passkey, occupation:occupation, salary:salary, phone_number:phone_num)
+       User.create(name: name, age:age, id_number: id_num, username:@username1, password:passkey, occupation:occupation, salary:salary, phone_number:phone_num)
        box = TTY::Box.success("You Have successfully created your profile")
        print box
+       #bank account name , monthly fee, rewards
+       bank_account_first_step
+    end
+
+    def bank_account_first_step
+        prompt = TTY::Prompt.new
+        prompt.select("What type of accounts are you interested in opening today? ") do |menu|
+         menu.enum ')'
+         menu.choice 'Premier Checking Account' do  @acc = "Premier Checking Account"  end
+         menu.choice 'Premier Savings Account' do @acc = "Premier Savings Account" end
+         menu.choice 'Premier Credit Card' do @acc = "Premier Credit Card"  end
+         menu.choice 'Premier Certifacte of Deposit' do @acc = "Premier Certificate of Deposit" end
+         end 
+         premier_acc  
+    end
+
+    def premier_acc
+        prompt = TTY::Prompt.new
+       qforaccount= prompt.yes?("You are opening our #{@acc} Do you want to continue?")
+          if qforaccount
+            search_for_account = Bank.find_by(accounts:@acc)
+            foundaccount = Bank.where(id:search_for_account).first
+            search  = User.find_by(username: @username1)
+            findauser = User.where(id: search).first
+            u_id = findauser.id
+            c_id = foundaccount.id
+            Useraccount.create(user_id:u_id, bank_id:c_id, funds:0)
+            spinner = TTY::Spinner.new("[:spinner] Verifying Account")
+            spinner.success('(successful)')
+            puts "You can now make deposits, withdrawals and open new accounts :)"
+            menu
+          else 
+            bank_account_first_step
+          end
+    end
+
+    def menu
+        prompt = TTY::Prompt.new
+    prompt.select("How can we Help you today.") do |prompt|
+        prompt.enum '.'
+        prompt.choice 'Rent A Game' do  rentgame end
+        prompt.choice 'View My Games' do viewmygames end
+        prompt.choice 'Return A Game' do returnagame end
+        prompt.choice 'Update or delete a review' do updatedelete end
+        prompt.choice 'Exit program' do puts "Have a great day" end
+        prompt.choice 'Delete my account' do deleteaccount end
+    end
+        
     end
 
 
