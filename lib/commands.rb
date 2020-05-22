@@ -14,7 +14,7 @@ class CommandLineInterface
     end
     def sign_in_menu
         prompt = TTY::Prompt.new
-       username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
+       @username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
        password = prompt.mask("Please enter your password")
        search = User.find_by(username: username, password: password)
        findauser = User.where(id: search).first
@@ -87,16 +87,28 @@ class CommandLineInterface
 
     def menu
         prompt = TTY::Prompt.new
-    prompt.select("How can we Help you today.") do |prompt|
+        prompt.select("How can we Help you today.") do |prompt|
         prompt.enum '.'
-        prompt.choice 'Rent A Game' do  rentgame end
-        prompt.choice 'View My Games' do viewmygames end
-        prompt.choice 'Return A Game' do returnagame end
-        prompt.choice 'Update or delete a review' do updatedelete end
-        prompt.choice 'Exit program' do puts "Have a great day" end
-        prompt.choice 'Delete my account' do deleteaccount end
+        prompt.choice 'Make a deposit/payment' do  deposit end
+        prompt.choice 'Make a withdrawal' do withdrawal end
+        prompt.choice 'View Your balances' do balances end
+        prompt.choice 'Open an Account' do bank_account_first_step end
+        prompt.choice 'Make a transfer' do transfer end
+        prompt.choice 'More options' do moreoptions end
+        prompt.choice 'Exit' do puts "Have a great day"end
+    end       
     end
-        
+
+    def deposit
+        puts "Which account do you want to deposit in"
+        search  = User.find_by(username: @username)
+        findauser = User.where(id: search).first
+        u_id = findauser.id
+
+        puts "How much do you want to deposit/pay today?"
+        prompt = TTY::Prompt.new
+        money = prompt.ask('type the amount here => $')
+
     end
 
 
