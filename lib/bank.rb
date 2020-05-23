@@ -1,4 +1,4 @@
 class Bank < ActiveRecord::Base
-    has_many :userAccounts
-    has_many :users, through: :userAccounts
+    has_many :useraccounts
+    has_many :users, through: :useraccounts
 end

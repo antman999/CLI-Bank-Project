@@ -16,10 +16,10 @@ class CommandLineInterface
         prompt = TTY::Prompt.new
        @username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
        password = prompt.mask("Please enter your password")
-       search = User.find_by(username: username, password: password)
+       search = User.find_by(username: @username, password: password)
        findauser = User.where(id: search).first
        if findauser
-        puts "Welcome back, #{username}."
+        puts "Welcome back, #{@username}."
         menu
        else 
         prompt.select("Our record indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
@@ -100,15 +100,27 @@ class CommandLineInterface
     end
 
     def deposit
+        prompt = TTY::Prompt.new
         puts "Which account do you want to deposit in"
         search  = User.find_by(username: @username)
         findauser = User.where(id: search).first
-        u_id = findauser.id
-
+        deposit1 = findauser.useraccounts.first
+        findTheAccount = deposit1.bank_id
+        nameTheAcccount = Bank.where(id:findTheAccount).uniq
+        accounts = nameTheAcccount.pluck(:accounts)
+        u_id = findauser.id 
+        puts accounts
+        paste = prompt.ask ('Please paste the account you want to deposit in =>')
+        search_for_bank = Bank.find_by(accounts:paste)
+        get_id = Bank.where(id:search_for_bank).first
+        b_id = get_id.id 
+        #im at the point where it lists the accounts but i want to find a way for a user to select 
+        #the account using tty prompt
         puts "How much do you want to deposit/pay today?"
-        prompt = TTY::Prompt.new
         money = prompt.ask('type the amount here => $')
-
+        find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
+        find_account.increment!(:funds,money.to_i)
+        puts "Youre all done you can view your balance in the menu section"
     end
 
 
