@@ -100,27 +100,32 @@ class CommandLineInterface
     end
 
     def deposit
-        prompt = TTY::Prompt.new
-        puts "Which account do you want to deposit in"
-        search  = User.find_by(username: @username)
-        findauser = User.where(id: search).first
-        deposit1 = findauser.useraccounts.first
-        findTheAccount = deposit1.bank_id
-        nameTheAcccount = Bank.where(id:findTheAccount).uniq
-        accounts = nameTheAcccount.pluck(:accounts)
-        u_id = findauser.id 
-        puts accounts
-        paste = prompt.ask ('Please paste the account you want to deposit in =>')
-        search_for_bank = Bank.find_by(accounts:paste)
+         prompt = TTY::Prompt.new
+            puts "Which account do you want to deposit in"
+                search  = User.find_by(username: @username)
+                    findauser = User.where(id: search).first
+                        deposit1 = findauser.useraccounts.first
+                            findTheAccount = deposit1.bank_id
+                            nameTheAcccount = Bank.where(id:findTheAccount).uniq
+                        accounts = nameTheAcccount.pluck(:accounts)
+                     u_id = findauser.id 
+                    puts accounts
+                paste = prompt.ask ('Please paste the account you want to deposit in =>')
+            search_for_bank = Bank.find_by(accounts:paste)
         get_id = Bank.where(id:search_for_bank).first
         b_id = get_id.id 
         #im at the point where it lists the accounts but i want to find a way for a user to select 
         #the account using tty prompt
-        puts "How much do you want to deposit/pay today?"
-        money = prompt.ask('type the amount here => $')
-        find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
-        find_account.increment!(:funds,money.to_i)
-        puts "Youre all done you can view your balance in the menu section"
+            puts "How much do you want to deposit/pay today?"
+                money = prompt.ask('type the amount here => $')
+                    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
+                    find_account.increment!(:funds,money.to_i)
+                puts "Youre all done you can view your balance in the View my balances section"
+            menu
+    end
+
+    def withdrawal
+
     end
 
 
