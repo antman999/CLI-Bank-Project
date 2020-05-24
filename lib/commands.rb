@@ -1,12 +1,12 @@
 require "tty-prompt"
 require 'tty-box'
 require 'tty-spinner'
+require 'tty-table'
 class CommandLineInterface
     def welcome 
         prompt = TTY::Prompt.new
         prompt.select("welcome do you have an account with us if you do please sign in if not we can help you make an account today!") do |menu|
             menu.enum '.'
-          
             menu.choice 'Sign In' do sign_in_menu end
             menu.choice 'No. I dont have an account' do create_profile end
             menu.choice 'exit' do end
@@ -66,12 +66,13 @@ class CommandLineInterface
     end
 
     def premier_acc
+        @username1 = @username
         prompt = TTY::Prompt.new
        qforaccount= prompt.yes?("You are opening our #{@acc} Do you want to continue?")
           if qforaccount
             search_for_account = Bank.find_by(accounts:@acc)
             foundaccount = Bank.where(id:search_for_account).first
-            search  = User.find_by(username: @username1)
+            search  = User.find_by(username: @username)
             findauser = User.where(id: search).first
             u_id = findauser.id
             c_id = foundaccount.id
@@ -125,7 +126,42 @@ class CommandLineInterface
     end
 
     def withdrawal
+        prompt = TTY::Prompt.new
+            puts "Which account do you want to withdraw from "
+                search  = User.find_by(username: @username)
+                    findauser = User.where(id: search).first
+                        deposit1 = findauser.useraccounts.first
+                            findTheAccount = deposit1.bank_id
+                            nameTheAcccount = Bank.where(id:findTheAccount).uniq
+                        accounts = nameTheAcccount.pluck(:accounts)
+                     u_id = findauser.id 
+                    puts accounts
+                paste = prompt.ask ('Please paste the account you want to Withdraw from =>')
+            search_for_bank = Bank.find_by(accounts:paste)
+        get_id = Bank.where(id:search_for_bank).first
+        b_id = get_id.id 
+        #im at the point where it lists the accounts but i want to find a way for a user to select 
+        #the account using tty prompt
+            puts "How much do you want to withdraw today?"
+                money = prompt.ask('type the amount here => $')
+                    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
+                    find_account.decrement!(:funds,money.to_i)
+                puts "Youre all done you can view your balance in the View my balances section"
+            menu
+    end
+    #I need to add if account is currently open or in closed status
 
+    def balances
+            puts "Welcome back #{@username} these are you balances,"
+                search  = User.find_by(username: @username)
+                    findauser = User.where(id: search).first
+                     deposit1 = findauser.useraccounts
+                     deposit_id = deposit1.pluck(:bank_id).uniq
+                     bank = Bank.where(id:deposit_id)
+                 a1 = bank.pluck(:accounts)
+            a2 = deposit1.pluck(:funds)
+        table = TTY::Table.new ['Account','Balances'], [[a1, a2]]
+        puts table.render(:ascii)
     end
 
 
