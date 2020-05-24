@@ -149,8 +149,7 @@ class CommandLineInterface
                 puts "Youre all done you can view your balance in the View my balances section"
             menu
     end
-    #I need to add if account is currently open or in closed status
-
+   
     def balances
             puts "Welcome back #{@username} these are you balances,"
                 search  = User.find_by(username: @username)
@@ -161,8 +160,26 @@ class CommandLineInterface
                  a1 = bank.pluck(:accounts)
             a2 = deposit1.pluck(:funds)
         table = TTY::Table.new ['Account','Balances'], [[a1, a2]]
-        puts table.render(:ascii)
+        puts table.render :ascii, multiline: true
+        prompt = TTY::Prompt.new
+        prompt.select("What would you like to do next?") do |prompt|
+        prompt.enum '.'
+        prompt.choice 'Make a deposit/payment' do  deposit end
+        prompt.choice 'Make a withdrawal' do withdrawal end
+        prompt.choice 'Go back to the main menu' do menu end
+        end
     end
 
+    def transfer
+        prompt = TTY::Prompt.new
+        zelle= prompt.yes?("Welcome to our totally not zelle app do you want to make a transfer today?")
+        if zelle
+        else
+            menu
+        end
+    end
 
+ #I need to add if account is currently open or in closed status
+ #I need to add if account is currently open or in closed status
+ #I need to add if account is currently open or in closed status
 end
