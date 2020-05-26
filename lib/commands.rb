@@ -224,11 +224,11 @@ class CommandLineInterface
    prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
    prompt.choice 'Check if youre qualified for our Elite Accounts' do eliteaccount end 
-   prompt.choice 'Close my Account' do closeaccount end #done
+   prompt.choice 'Close my Account' do closeaccount end 
    prompt.choice 'update my phone number' do updatephone end 
-   prompt.choice 'update my password' do updatepassword end
+   prompt.choice 'update my password' do updatepassword end 
    prompt.choice 'Go back to Main Menu' do menu end 
-   prompt.choice 'Exit' do puts "Have a great day"end
+   prompt.choice 'Exit' do puts "Have a great day"end 
     end       
  end
 
@@ -243,6 +243,38 @@ class CommandLineInterface
   else
     menu
   end
+ end
+
+ def updatephone
+  search  = User.find_by(username: @username)
+  findauser = User.where(id: search).first
+  prompt = TTY::Prompt.new
+  number = prompt.yes?("Welcome back. Do you want to update your phone number?")
+  if number
+    updatenumber = prompt.ask("this is you current phone number #{findauser.phone_number}. Please enter a new one!")
+    findauser.update(phone_number:updatephone)
+    puts "You're all set, your new number on file is #{findauser.phone_number}."
+    puts "Have a great day"
+    menu
+  else 
+    menu
+  end
+
+  def updatepassword
+    search  = User.find_by(username: @username)
+    findauser = User.where(id: search).first
+    prompt = TTY::Prompt.new
+    number = prompt.yes?("Welcome back. Do you want to update your password?")
+    if number
+      updatepass = prompt.ask("this is you current password #{findauser.password}. Please enter a new one!")
+      findauser.update(password:updatepass)
+      puts "You're all set, your new password on file is #{findauser.password}."
+      puts "Have a great day"
+      menu
+    else 
+      menu
+    end
+
  end
 
  #allowed to withdraw?
