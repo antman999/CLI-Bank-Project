@@ -2,9 +2,12 @@ require "tty-prompt"
 require 'tty-box'
 require 'tty-spinner'
 require 'tty-table'
+require 'tty-color'
+require 'pastel'
+require 'tty-font'
 class CommandLineInterface
-
- def welcome 
+ def welcome
+    pastel = Pastel.new 
     prompt = TTY::Prompt.new
     prompt.select("welcome do you have an account with us if you do please sign in if not we can help you make an account today!") do |menu|
      menu.enum '.'
@@ -167,9 +170,17 @@ class CommandLineInterface
    puts "How much do you want to withdraw today?"
    money = prompt.ask('type the amount here => $')
    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
+   if find_account.funds > money.to_i
    find_account.decrement!(:funds,money.to_i)
    puts "Youre all done you can view your balance in the View my balances section"
    menu
+   else
+   prompt.select("sorry you gotta get your money up to make that withdrawal please try a lower amount.") do |prompt|
+   prompt.enum '.'
+   prompt.choice 'Make a deposit/payment' do  deposit end
+   prompt.choice 'Menu' do menu end 
+   end
+   end
  end
    
  def balances
@@ -299,11 +310,7 @@ class CommandLineInterface
 
 #allowed to withdraw?
 
-#ascii text 
-
 #big lettering on beggining if youre a premium member
-
-#forgot my password
 
 #fix some typos
 
@@ -312,6 +319,4 @@ class CommandLineInterface
 #I need to add if account is currently open or in closed status
 
 # fix balances
-
-#not allowed to withdraw/transfer if you have no money 
 end
