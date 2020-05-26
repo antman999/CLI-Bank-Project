@@ -91,13 +91,13 @@ class CommandLineInterface
    prompt = TTY::Prompt.new
    prompt.select("How can we Help you today.") do |prompt|
    prompt.enum '.'
-   prompt.choice 'Make a deposit/payment' do  deposit end
-   prompt.choice 'Make a withdrawal' do withdrawal end
-   prompt.choice 'View Your balances' do balances end
-   prompt.choice 'Open an Account' do bank_account_first_step end
-   prompt.choice 'Make a transfer' do transfer end
+   prompt.choice 'Make a deposit/payment' do  deposit end #done
+   prompt.choice 'Make a withdrawal' do withdrawal end #done
+   prompt.choice 'View Your balances' do balances end #kinda done
+   prompt.choice 'Open an Account' do bank_account_first_step end #done
+   prompt.choice 'Make a transfer' do transfer end #done
    prompt.choice 'More options' do moreoptions end
-   prompt.choice 'Exit' do puts "Have a great day"end
+   prompt.choice 'Exit' do puts "Have a great day"end #done
     end       
  end
 
@@ -106,8 +106,10 @@ class CommandLineInterface
    puts "Which account do you want to deposit in"
    search  = User.find_by(username: @username)
    findauser = User.where(id: search).first
-   deposit1 = findauser.useraccounts.first
-   findTheAccount = deposit1.bank_id
+   deposit1 = findauser.useraccounts
+   findTheAccount = deposit1.map do |v|
+    v.bank_id
+   end
    nameTheAcccount = Bank.where(id:findTheAccount).uniq
    accounts = nameTheAcccount.pluck(:accounts)
    u_id = findauser.id 
@@ -129,8 +131,10 @@ class CommandLineInterface
    puts "Which account do you want to withdraw from "
    search  = User.find_by(username: @username)
    findauser = User.where(id: search).first
-   deposit1 = findauser.useraccounts.first
-   findTheAccount = deposit1.bank_id
+   deposit1 = findauser.useraccounts
+   findTheAccount = deposit1.map do |v|
+    v.bank_id
+   end
    nameTheAcccount = Bank.where(id:findTheAccount).uniq
    accounts = nameTheAcccount.pluck(:accounts)
    u_id = findauser.id 
@@ -213,6 +217,19 @@ class CommandLineInterface
     else
     menu
     end
+ end
+
+ def moreoptions
+  prompt = TTY::Prompt.new
+   prompt.select("How can we Help you today?") do |prompt|
+   prompt.enum '.'
+   prompt.choice 'Check if youre qualified for our Elite Accounts' do eliteaccount end 
+   prompt.choice 'Close my Account' do closeaccount end 
+   prompt.choice 'update my phone number' do updatephone end 
+   prompt.choice 'update my password' do updatepassword end
+   prompt.choice 'Go back to Main Menu' do menu end 
+   prompt.choice 'Exit' do puts "Have a great day"end
+    end       
  end
 
  #I need to add if account is currently open or in closed status
