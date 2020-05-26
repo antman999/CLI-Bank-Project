@@ -224,7 +224,7 @@ class CommandLineInterface
    prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
    prompt.choice 'Check if youre qualified for our Elite Accounts' do eliteaccount end 
-   prompt.choice 'Close my Account' do closeaccount end 
+   prompt.choice 'Close my Account' do closeaccount end #done
    prompt.choice 'update my phone number' do updatephone end 
    prompt.choice 'update my password' do updatepassword end
    prompt.choice 'Go back to Main Menu' do menu end 
@@ -232,7 +232,34 @@ class CommandLineInterface
     end       
  end
 
- #I need to add if account is currently open or in closed status
- #I need to add if account is currently open or in closed status
- #I need to add if account is currently open or in closed status
+ def closeaccount
+  search  = User.find_by(username: @username)
+  findauser = User.where(id: search).first
+  prompt = TTY::Prompt.new
+  ask_to_close= prompt.yes?("We are really sad to see you go, ARE you 100% sure you want to delete your account. There's no going back, we will mail you a check within 7-10 business days.")
+  if ask_to_close
+    puts "You're all set your accounts have been closed. Have a great day!"
+    User.delete(findauser)
+  else
+    menu
+  end
+ end
+
+ #allowed to withdraw?
+
+#ascii text 
+
+#big lettering on beggining if youre a premium member
+
+#forgot my password
+
+#fix some typos
+
+#try to make font bigger somehow
+
+#I need to add if account is currently open or in closed status
+
+# fix balances
+
+#not allowed to withdraw/transfer if you have no money 
 end
