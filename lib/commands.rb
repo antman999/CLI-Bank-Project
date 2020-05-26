@@ -27,9 +27,28 @@ class CommandLineInterface
       prompt.select("Our record indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
        menu.enum '.'
        menu.choice 'Try Again' do sign_in_menu end
+       menu.choice 'Forgot my password' do forgotpassword end
        menu.choice 'Ok, lets open an account' do create_profile end
        menu.choice 'Go Back'do welcome end
       end
+    end
+ end
+
+ def forgotpassword
+  prompt = TTY::Prompt.new
+  @username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
+  phone = prompt.ask("To view your password please enter your phone number")
+  search = User.find_by(username: @username, phone_number: phone)
+  findauser = User.where(id: search).first
+  if findauser 
+    prompt.select("your password is #{search.password} you can go ahead and log in") do |menu|
+      menu.enum '.'
+      menu.choice 'Try Again' do sign_in_menu end
+      menu.choice 'exit' do puts "Have a great day!" end
+      end
+    else 
+      puts "either one of the 2 is wrong try again"
+      sign_in_menu
     end
  end
 
@@ -252,7 +271,7 @@ class CommandLineInterface
   number = prompt.yes?("Welcome back. Do you want to update your phone number?")
    if number
     updatenumber = prompt.ask("this is you current phone number #{findauser.phone_number}. Please enter a new one!")
-    findauser.update(phone_number:updatephone)
+    findauser.update(phone_number:updatenumber)
     puts "You're all set, your new number on file is #{findauser.phone_number}."
     puts "Have a great day"
     menu
@@ -278,7 +297,7 @@ class CommandLineInterface
 
  end
 
- #allowed to withdraw?
+#allowed to withdraw?
 
 #ascii text 
 
