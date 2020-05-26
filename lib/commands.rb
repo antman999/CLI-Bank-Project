@@ -250,15 +250,16 @@ class CommandLineInterface
   findauser = User.where(id: search).first
   prompt = TTY::Prompt.new
   number = prompt.yes?("Welcome back. Do you want to update your phone number?")
-  if number
+   if number
     updatenumber = prompt.ask("this is you current phone number #{findauser.phone_number}. Please enter a new one!")
     findauser.update(phone_number:updatephone)
     puts "You're all set, your new number on file is #{findauser.phone_number}."
     puts "Have a great day"
     menu
-  else 
+   else 
     menu
-  end
+   end
+ end
 
   def updatepassword
     search  = User.find_by(username: @username)
