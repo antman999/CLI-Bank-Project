@@ -24,7 +24,6 @@ class CommandLineInterface
        else 
         prompt.select("Our record indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
             menu.enum '.'
-          
             menu.choice 'Try Again' do sign_in_menu end
             menu.choice 'Ok, lets open an account' do create_profile end
             menu.choice 'Go Back'do welcome end
@@ -39,17 +38,27 @@ class CommandLineInterface
         puts
         prompt = TTY::Prompt.new
        name = prompt.ask('To start im going to need your name? =>')
+
        age = prompt.ask('Next, enter your age =>')
+
        id_num = prompt.ask('Enter your ID number as it appears on your ID card =>')
+
        @username1 = prompt.ask('To have access to your accounts you need to create a username =>')
+
        passkey = prompt.mask('We also need a password. =>')
+
        occupation = prompt.ask('Also what do you do for a living? =>')
+
        salary = prompt.ask('What is your total yearly income?(no need to write $ we will convert it.) =>')
+
        phone_num = prompt.ask('Please enter your phone number with no - just straight numbers we can you use this to retrive your password if you ever forget it. =>')
+       
        User.create(name: name, age:age, id_number: id_num, username:@username1, password:passkey, occupation:occupation, salary:salary, phone_number:phone_num)
+      
        box = TTY::Box.success("You Have successfully created your profile")
+       
        print box
-       #bank account name , monthly fee, rewards
+
        bank_account_first_step
     end
 
@@ -172,8 +181,70 @@ class CommandLineInterface
 
     def transfer
         prompt = TTY::Prompt.new
-        zelle= prompt.yes?("Welcome to our totally not zelle app do you want to make a transfer today?")
+        zelle = prompt.yes?("Welcome to our totally not zelle app do you want to make a transfer today?")
         if zelle
+            ####recipient###
+             ask_for_username_for_friend = prompt.ask("Please enter the username of the person you want to transfer to.")
+
+             search_for_friend = User.find_by(username:ask_for_username_for_friend)
+
+             found_friend = User.where(id: search_for_friend).first
+
+             account_for_that_friend = found_friend.useraccounts.first
+
+             bank_id_for_friend = account_for_that_friend.bank_id
+
+             friends_id = found_friend.id 
+
+             ###sender####
+            amount_for_friend = prompt.ask("Please enter the amount you would like to send => $")
+
+            search_for_sender = User.find_by(username: @username)
+
+            find_the_sender = User.where(id: search_for_sender).first
+            
+            accounts_for_sender = find_the_sender.useraccounts.first
+            
+            found_account_for_sender= accounts_for_sender.bank_id
+
+            name_of_accounts_sender_has = Bank.where(id:found_account_for_sender).uniq
+
+            accounts_array = name_of_accounts_sender_has.pluck(:accounts)
+
+            sender_id = find_the_sender.id 
+            ###### method starts ####
+
+            puts accounts_array
+            
+            paste_account = prompt.ask ('Please copy/paste the account you want to transfer from =>')
+
+            search_for_the_exact_account = Bank.find_by(accounts:paste_account)
+
+            get_bank_id_sender = Bank.where(id:search_for_the_exact_account).first
+
+            bank_id_for_sender= get_bank_id_sender.id 
+
+            last_chance_before_transfer = prompt.yes?("Are you sure you want to trasnfer $#{amount_for_friend} to #{ask_for_username_for_friend} ")
+
+            if last_chance_before_transfer
+
+                find_account_user = Useraccount.all.find_by(user_id:sender_id,bank_id:bank_id_for_sender)
+                find_account_user.decrement!(:funds,amount_for_friend.to_i)
+
+                find_account_friend = Useraccount.all.find_by(user_id:friends_id,bank_id:bank_id_for_friend)
+                find_account_friend.increment!(:funds,amount_for_friend.to_i)
+
+                puts "Thank you for chosing us your transfer to #{ask_for_username_for_friend} is complete"
+
+                    prompt.select("What would you like to do next?") do |prompt|
+                    prompt.enum '.'
+                    prompt.choice 'Make a deposit/payment' do  deposit end
+                    prompt.choice 'Go back to the main menu' do menu end
+                    end
+            else
+                menu
+            end
+
         else
             menu
         end
