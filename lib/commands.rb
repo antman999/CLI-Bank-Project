@@ -266,7 +266,7 @@ class CommandLineInterface
 
  def closeaccount
   search  = User.find_by(username: @username)
-  findauser = User.where(id: search).first
+  findauser =User.where(id: search).first
   prompt = TTY::Prompt.new
   ask_to_close= prompt.yes?("We are really sad to see you go, ARE you 100% sure you want to delete your account. There's no going back, we will mail you a check within 7-10 business days.")
   if ask_to_close
@@ -310,9 +310,44 @@ class CommandLineInterface
 
  end
 
-#big lettering on beggining if youre a premium member
+ def eliteaccount
+  prompt = TTY::Prompt.new
+  search  = User.find_by(username: @username)
+  findauser = User.where(id: search).first
+  deposit1 = findauser.useraccounts
+  findTheAccount = deposit1.map do |v|
+   v.funds
+  end
+  firstprompt = prompt.yes?("Welcome back do you want to apply to our elite accounts")
+  puts "there are 3 tiers of elite accounts the first one is gold rewards in order to qualify for this acccount you need atleast $20,000 in your checking account."
+  puts
+  puts "The second tier is silver with this tier you need to have atleast $50,000 in your account you will get a 10% interest boost on your accounts."
+  puts
+  puts "Our most premium tier is the absolute best we have. You have to maintain atleast $100,000 with this is tier you will get a 20% boost on all your acccounts!"
+  confirm = prompt.yes?("Please confirm you want use to check if you qualify for one of our accounts :)")
+  if confirm
+    if findTheAccount.sum > 100000
+      puts "CONGRATS!! you have just enrolled in our DIAMOND tier account enjoy all the extra benefits"
+      menu
+       
+    elsif findTheAccount.sum > 50000
+      puts "CONGRATS!! you have just enrolled in our SILVER tier account enjoy all the extra benefits"
+      menu
 
-#fix some typos
+    elsif findTheAccount.sum > 20000
+      puts "CONGRATS!! you have just enrolled in our GOLD tier account enjoy all the extra benefits"
+      menu
+
+    elsif findTheAccount.sum < 20000
+      puts "You dont currently qualify for one of our elite tiers please try again when you meet the balance requirement!"
+      menu
+    end
+  else
+    menu
+  end
+ end
+
+#big lettering on beggining if youre a premium member
 
 #try to make font bigger somehow
 
