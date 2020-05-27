@@ -9,25 +9,25 @@ class CommandLineInterface
  def welcome
     pastel = Pastel.new 
     prompt = TTY::Prompt.new
-    prompt.select("welcome do you have an account with us if you do please sign in if not we can help you make an account today!") do |menu|
+    prompt.select("welcome to our online banking app. How can we help you today? ") do |menu|
      menu.enum '.'
      menu.choice 'Sign In' do sign_in_menu end
-     menu.choice 'No. I dont have an account' do create_profile end
-     menu.choice 'exit' do end
+     menu.choice 'Create An Account' do create_profile end
+     menu.choice 'Exit' do end
     end
  end
 
  def sign_in_menu
     prompt = TTY::Prompt.new
-    @username = prompt.ask('What is your Username? **keep in mind its case sensitive**', default: ENV['USER'])
-    password = prompt.mask("Please enter your password")
+    @username = prompt.ask('Please Enter your Username? **keep in mind its case sensitive**', default: ENV['USER'])
+    password = prompt.mask("Please Enter your Password")
     search = User.find_by(username: @username, password: password)
     findauser = User.where(id: search).first
       if findauser
-       puts "Welcome back, #{@username}."
+       puts "Welcome back, #{findauser.name.capitalize}."
        menu
       else 
-      prompt.select("Our record indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
+      prompt.select("Our records indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
        menu.enum '.'
        menu.choice 'Try Again' do sign_in_menu end
        menu.choice 'Forgot my password' do forgotpassword end
@@ -111,7 +111,7 @@ class CommandLineInterface
 
  def menu
    prompt = TTY::Prompt.new
-   prompt.select("How can we Help you today.") do |prompt|
+   prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
    prompt.choice 'Make a deposit/payment' do  deposit end #done
    prompt.choice 'Make a withdrawal' do withdrawal end #done
@@ -125,7 +125,7 @@ class CommandLineInterface
 
  def deposit
    prompt = TTY::Prompt.new
-   puts "Which account do you want to deposit in"
+   puts "Which account do you want to deposit into"
    search  = User.find_by(username: @username)
    findauser = User.where(id: search).first
    deposit1 = findauser.useraccounts
@@ -144,7 +144,9 @@ class CommandLineInterface
    money = prompt.ask('type the amount here => $')
    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
    find_account.increment!(:funds,money.to_i)
-   puts "Youre all done you can view your balance in the View my balances section"
+   spinner = TTY::Spinner.new("[:spinner] Verifying deposit")
+   spinner.success('(successful)')
+   puts "Youre all done you can view your balances in the View my balances section"
    menu
  end
 
@@ -157,7 +159,7 @@ class CommandLineInterface
    findTheAccount = deposit1.map do |v|
     v.bank_id
    end
-   nameTheAcccount = Bank.where(id:findTheAccount).uniq
+   nameTheAcccount = Bank.where(id:findTheAccount,withdrawable:true).uniq
    accounts = nameTheAcccount.pluck(:accounts)
    u_id = findauser.id 
    puts accounts
@@ -308,15 +310,11 @@ class CommandLineInterface
 
  end
 
-#allowed to withdraw?
-
 #big lettering on beggining if youre a premium member
 
 #fix some typos
 
 #try to make font bigger somehow
-
-#I need to add if account is currently open or in closed status
 
 # fix balances
 end

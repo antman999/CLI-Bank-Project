@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_21_143911) do
+ActiveRecord::Schema.define(version: 2020_05_27_010545) do
 
   create_table "banks", force: :cascade do |t|
     t.string "accounts"
     t.integer "monthly_fee"
     t.string "interest_rate"
+    t.boolean "withdrawable", default: false
   end
 
   create_table "useraccounts", force: :cascade do |t|
@@ -25,6 +26,7 @@ ActiveRecord::Schema.define(version: 2020_05_21_143911) do
     t.boolean "gold_rewards", default: false
     t.boolean "silver_rewards", default: false
     t.boolean "diamond_rewards", default: false
+    t.boolean "closed?", default: false
   end
 
   create_table "users", force: :cascade do |t|
