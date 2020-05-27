@@ -5,6 +5,7 @@ require 'tty-table'
 require 'tty-color'
 require 'pastel'
 require 'tty-font'
+require 'tty-pie'
 class CommandLineInterface
  def welcome
     pastel = Pastel.new 
@@ -71,9 +72,11 @@ class CommandLineInterface
     phone_num = prompt.ask('Please enter your phone number with no - just straight numbers we can you use this to retrive your password if you ever forget it. =>')
        
     User.create(name: name, age:age, id_number: id_num, username:@username, password:passkey, occupation:occupation, salary:salary, phone_number:phone_num)
-    box = TTY::Box.success("You Have successfully created your profile")     
-       print box
-       bank_account_first_step
+    spinner = TTY::Spinner.new("[:spinner] Verifying Profile")
+    spinner.auto_spin
+    sleep(2)
+    spinner.success('(✅✅ successful ✅✅)')
+    bank_account_first_step
  end
 
  def bank_account_first_step
@@ -101,7 +104,9 @@ class CommandLineInterface
 
       Useraccount.create(user_id:u_id, bank_id:c_id, funds:0)
       spinner = TTY::Spinner.new("[:spinner] Verifying Account")
-      spinner.success('(successful)')
+      spinner.auto_spin
+      sleep(2)
+      spinner.success('(✅✅ successful ✅✅)')
       puts "You can now make deposits, withdrawals and open new accounts :)"
       menu
       else 
@@ -113,13 +118,13 @@ class CommandLineInterface
    prompt = TTY::Prompt.new
    prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
-   prompt.choice 'Make a deposit/payment' do  deposit end #done
-   prompt.choice 'Make a withdrawal' do withdrawal end #done
-   prompt.choice 'View Your balances' do balances end #kinda done
-   prompt.choice 'Open an Account' do bank_account_first_step end #done
-   prompt.choice 'Make a transfer' do transfer end #done
-   prompt.choice 'More options' do moreoptions end
-   prompt.choice 'Exit' do puts "Have a great day"end #done
+   prompt.choice 'Make a deposit/payment  🏧' do  deposit end #done
+   prompt.choice 'Make a withdrawal  💵' do withdrawal end #done
+   prompt.choice 'View Your balances  💳' do balances end #kinda done
+   prompt.choice 'Open an Account  📈' do bank_account_first_step end #done
+   prompt.choice 'Make a transfer  🔁' do transfer end #done
+   prompt.choice 'More options  ❗️' do moreoptions end
+   prompt.choice 'Exit  👋🏻' do puts "Have a great day"end #done
     end       
  end
 
@@ -135,17 +140,18 @@ class CommandLineInterface
    nameTheAcccount = Bank.where(id:findTheAccount).uniq
    accounts = nameTheAcccount.pluck(:accounts)
    u_id = findauser.id 
-   puts accounts
-   paste = prompt.ask ('Please paste the account you want to deposit in =>')
+   paste = prompt.select("Select the account you want to deposit in 🤑", accounts)
    search_for_bank = Bank.find_by(accounts:paste)
    get_id = Bank.where(id:search_for_bank).first
    b_id = get_id.id 
-   puts "How much do you want to deposit/pay today?"
+   puts "How much do you want to deposit/pay today?💸"
    money = prompt.ask('type the amount here => $')
    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
    find_account.increment!(:funds,money.to_i)
-   spinner = TTY::Spinner.new("[:spinner] Verifying deposit")
-   spinner.success('(successful)')
+   spinner = TTY::Spinner.new("[:spinner]  💵 Verifying deposit")
+   spinner.auto_spin
+   sleep(2)
+   spinner.success('(✅✅ successful ✅✅)')
    puts "Youre all done you can view your balances in the View my balances section"
    menu
  end
@@ -162,8 +168,7 @@ class CommandLineInterface
    nameTheAcccount = Bank.where(id:findTheAccount,withdrawable:true).uniq
    accounts = nameTheAcccount.pluck(:accounts)
    u_id = findauser.id 
-   puts accounts
-   paste = prompt.ask ('Please paste the account you want to Withdraw from =>')
+   paste = prompt.select("Select the account you want to withdraw from", accounts)
    search_for_bank = Bank.find_by(accounts:paste)
    get_id = Bank.where(id:search_for_bank).first
    b_id = get_id.id 
@@ -174,10 +179,18 @@ class CommandLineInterface
    find_account = Useraccount.all.find_by(user_id:u_id,bank_id:b_id)
    if find_account.funds > money.to_i
    find_account.decrement!(:funds,money.to_i)
-   puts "Youre all done you can view your balance in the View my balances section"
+   spinner = TTY::Spinner.new("[:spinner]  💵 Verifying withdraw")
+   spinner.auto_spin
+   sleep(2)
+   spinner.success('(✅✅ successful ✅✅)')
+   puts "✅✅✅Youre all done you can view your balance in the View my balances section✅✅✅"
    menu
    else
-   prompt.select("sorry you gotta get your money up to make that withdrawal please try a lower amount.") do |prompt|
+   spinner = TTY::Spinner.new("[:spinner]  💵 Verifying withdraw")
+   spinner.auto_spin
+   sleep(2)
+   spinner.success('(❌❌ Error ❌❌)')
+   prompt.select("❌❌❌Sorry you gotta get your money up to make that withdrawal please try a lower amount.❌❌❌") do |prompt|
    prompt.enum '.'
    prompt.choice 'Make a deposit/payment' do  deposit end
    prompt.choice 'Menu' do menu end 
@@ -196,6 +209,13 @@ class CommandLineInterface
   a2 = deposit1.pluck(:funds)
    table = TTY::Table.new ['Account','Balances'], [[a1, a2]]
    puts table.render :ascii, multiline: true
+   data = [
+    { name: 'Checking Account', value: 50, color: :bright_yellow, fill: '💸' },
+    { name: 'LTC', value: 50, color: :bright_magenta, fill: '💰' }
+  ]
+  pie_chart = TTY::Pie.new(data: data, radius: 7)
+  print pie_chart
+
     prompt = TTY::Prompt.new
     prompt.select("What would you like to do next?") do |prompt|
     prompt.enum '.'
@@ -225,18 +245,21 @@ class CommandLineInterface
     name_of_accounts_sender_has = Bank.where(id:found_account_for_sender).uniq
     accounts_array = name_of_accounts_sender_has.pluck(:accounts)
     sender_id = find_the_sender.id 
-    ###### method starts ####
-    puts accounts_array      
-    paste_account = prompt.ask ('Please copy/paste the account you want to transfer from =>')
+    ###### method starts ####    
+    paste_account = prompt.select(" please select the account you want to transfer from", accounts_array)
     search_for_the_exact_account = Bank.find_by(accounts:paste_account)
     get_bank_id_sender = Bank.where(id:search_for_the_exact_account).first
     bank_id_for_sender= get_bank_id_sender.id 
-    last_chance_before_transfer = prompt.yes?("Are you sure you want to trasnfer $#{amount_for_friend} to #{ask_for_username_for_friend} ")
+    last_chance_before_transfer = prompt.yes?("Are you sure you want to transfer $#{amount_for_friend} to #{ask_for_username_for_friend} ")
         if last_chance_before_transfer
         find_account_user = Useraccount.all.find_by(user_id:sender_id,bank_id:bank_id_for_sender)
         find_account_user.decrement!(:funds,amount_for_friend.to_i)
         find_account_friend = Useraccount.all.find_by(user_id:friends_id,bank_id:bank_id_for_friend)
         find_account_friend.increment!(:funds,amount_for_friend.to_i)
+        spinner = TTY::Spinner.new("[:spinner]   🔁 Verifying Transfer 🔁")
+        spinner.auto_spin
+        sleep(2)
+        spinner.success('( 🔁 Success 🔁)')
         puts "Thank you for chosing us your transfer to #{ask_for_username_for_friend} is complete"
         prompt.select("What would you like to do next?") do |prompt|
         prompt.enum '.'
@@ -268,7 +291,7 @@ class CommandLineInterface
   search  = User.find_by(username: @username)
   findauser =User.where(id: search).first
   prompt = TTY::Prompt.new
-  ask_to_close= prompt.yes?("We are really sad to see you go, ARE you 100% sure you want to delete your account. There's no going back, we will mail you a check within 7-10 business days.")
+  ask_to_close= prompt.yes?("😞 We are really sad to see you go, ARE you 100% sure you want to delete your account. There's no going back, we will mail you a check within 7-10 business days.")
   if ask_to_close
     puts "You're all set your accounts have been closed. Have a great day!"
     User.delete(findauser)
@@ -311,6 +334,7 @@ class CommandLineInterface
  end
 
  def eliteaccount
+  spinner = TTY::Spinner.new
   prompt = TTY::Prompt.new
   search  = User.find_by(username: @username)
   findauser = User.where(id: search).first
@@ -325,26 +349,41 @@ class CommandLineInterface
   puts
   puts "Our most premium tier is the absolute best we have. You have to maintain atleast $100,000 with this is tier you will get a 20% boost on all your acccounts!"
   confirm = prompt.yes?("Please confirm you want use to check if you qualify for one of our accounts :)")
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
   if confirm
     if findTheAccount.sum > 100000
+      deposit1.update(diamond_rewards:true)
+      spinner.auto_spin
+      sleep(2)
       puts "CONGRATS!! you have just enrolled in our DIAMOND tier account enjoy all the extra benefits"
+      spinner.stop('Done!')
       menu
-       
     elsif findTheAccount.sum > 50000
+      deposit1.update(silver_rewards:true)
+      spinner.auto_spin
+      sleep(2)
       puts "CONGRATS!! you have just enrolled in our SILVER tier account enjoy all the extra benefits"
+      spinner.stop('Done!')
       menu
-
     elsif findTheAccount.sum > 20000
+      spinner.auto_spin
+      sleep(2)
+      deposit1.update(gold_rewards:true)
       puts "CONGRATS!! you have just enrolled in our GOLD tier account enjoy all the extra benefits"
+      spinner.stop('Done!')
       menu
-
     elsif findTheAccount.sum < 20000
+      spinner.auto_spin
+      sleep(2)
       puts "You dont currently qualify for one of our elite tiers please try again when you meet the balance requirement!"
+      spinner.stop('Done!')
       menu
     end
   else
     menu
   end
+  
  end
 
 #big lettering on beggining if youre a premium member
