@@ -261,10 +261,12 @@ class CommandLineInterface
   deposit_id = deposit1.pluck(:bank_id).uniq
   bank = Bank.where(id:deposit_id)
   a1 = bank.pluck(:accounts)
+  a3 = bank.pluck(:interest_rate)
   a2 = deposit1.pluck(:funds)
     prompt = TTY::Prompt.new
     paste = prompt.select("Select the account you want to view the balances from", a1)
-    puts "#{a1} = $#{a2}"
+    puts
+    puts "#{a1} = $#{a2} your current intrest rate is #{a3}."
     puts
     prompt.select("What would you like to do next?") do |prompt|
     prompt.enum '.'
@@ -458,10 +460,9 @@ class CommandLineInterface
       spinner.stop('Done!')
       menu
     end
-  else
+   else
     menu
-  end
-  
+   end
  end
 
 # fix balances
