@@ -114,7 +114,39 @@ class CommandLineInterface
     end
  end
 
+ def check_for_status
+  search  = User.find_by(username: @username)
+  findauser = User.where(id: search).first
+  deposit1 = findauser.useraccounts
+  g = deposit1.map do |v|
+       v.gold_rewards
+  end
+  s = deposit1.map do |v|
+    v.silver_rewards
+  end
+  d = deposit1.map do |v|
+    v.diamond_rewards
+  end
+
+  if g[0] == true 
+    font = TTY::Font.new(:straight)
+    pastel = Pastel.new
+    puts pastel.bright_yellow.on_black(font.write("GOLD MEMBER", letter_spacing: 2))
+  end
+  if s[0] == true
+    font = TTY::Font.new(:standard)
+    pastel = Pastel.new
+    puts pastel.bright_white.on_black(font.write(" SILVER MEMBER ", letter_spacing: 2))
+  end
+  if d[0] == true
+    font = TTY::Font.new(:doom)
+    pastel = Pastel.new
+    puts pastel.bright_cyan.on_black.bold(font.write(" DIAMOND MEMBER ", letter_spacing: 4))
+  end
+ end
+
  def menu
+ check_for_status
    prompt = TTY::Prompt.new
    prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
@@ -209,13 +241,6 @@ class CommandLineInterface
   a2 = deposit1.pluck(:funds)
    table = TTY::Table.new ['Account','Balances'], [[a1, a2]]
    puts table.render :ascii, multiline: true
-   data = [
-    { name: 'Checking Account', value: 50, color: :bright_yellow, fill: '💸' },
-    { name: 'LTC', value: 50, color: :bright_magenta, fill: '💰' }
-  ]
-  pie_chart = TTY::Pie.new(data: data, radius: 7)
-  print pie_chart
-
     prompt = TTY::Prompt.new
     prompt.select("What would you like to do next?") do |prompt|
     prompt.enum '.'
@@ -278,12 +303,12 @@ class CommandLineInterface
   prompt = TTY::Prompt.new
    prompt.select("How can we Help you today?") do |prompt|
    prompt.enum '.'
-   prompt.choice 'Check if youre qualified for our Elite Accounts' do eliteaccount end 
-   prompt.choice 'Close my Account' do closeaccount end 
-   prompt.choice 'update my phone number' do updatephone end 
-   prompt.choice 'update my password' do updatepassword end 
-   prompt.choice 'Go back to Main Menu' do menu end 
-   prompt.choice 'Exit' do puts "Have a great day"end 
+   prompt.choice 'Check if youre qualified for our Elite Accounts  👑' do eliteaccount end 
+   prompt.choice 'Close my Account  🚶🏽‍♀️' do closeaccount end 
+   prompt.choice 'update my phone number  ☎️' do updatephone end 
+   prompt.choice 'update my password  ❌' do updatepassword end 
+   prompt.choice 'Go back to Main Menu  ⏪' do menu end 
+   prompt.choice 'Exit  👋🏻' do puts "Have a great day"end 
     end       
  end
 
@@ -354,6 +379,8 @@ class CommandLineInterface
   if confirm
     if findTheAccount.sum > 100000
       deposit1.update(diamond_rewards:true)
+      deposit1.update(silver_rewards:false)
+      deposit1.update(gold_rewards:false)
       spinner.auto_spin
       sleep(2)
       puts "CONGRATS!! you have just enrolled in our DIAMOND tier account enjoy all the extra benefits"
@@ -361,6 +388,8 @@ class CommandLineInterface
       menu
     elsif findTheAccount.sum > 50000
       deposit1.update(silver_rewards:true)
+      deposit1.update(diamond_rewards:false)
+      deposit1.update(gold_rewards:false)
       spinner.auto_spin
       sleep(2)
       puts "CONGRATS!! you have just enrolled in our SILVER tier account enjoy all the extra benefits"
@@ -370,10 +399,15 @@ class CommandLineInterface
       spinner.auto_spin
       sleep(2)
       deposit1.update(gold_rewards:true)
+      deposit1.update(silver_rewards:false)
+      deposit1.update(diamond_rewards:false)
       puts "CONGRATS!! you have just enrolled in our GOLD tier account enjoy all the extra benefits"
       spinner.stop('Done!')
       menu
     elsif findTheAccount.sum < 20000
+      deposit1.update(gold_rewards:false)
+      deposit1.update(silver_rewards:false)
+      deposit1.update(diamond_rewards:false)
       spinner.auto_spin
       sleep(2)
       puts "You dont currently qualify for one of our elite tiers please try again when you meet the balance requirement!"
