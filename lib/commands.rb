@@ -26,8 +26,16 @@ class CommandLineInterface
     findauser = User.where(id: search).first
       if findauser
        puts "Welcome back, #{findauser.name.capitalize}."
+       spinner = TTY::Spinner.new("[:spinner]  Logging In...")
+       spinner.auto_spin
+       sleep(2)
+       spinner.success('( Verified ✅)')
        menu
       else 
+        spinner = TTY::Spinner.new("[:spinner]  Logging In...")
+        spinner.auto_spin
+        sleep(2)
+        spinner.error('( Failed ❌)')
       prompt.select("Our records indicate that either your password or username is wrong. You can try again or if you dont have an account we can make you one.") do |menu|
        menu.enum '.'
        menu.choice 'Try Again' do sign_in_menu end
@@ -156,11 +164,18 @@ class CommandLineInterface
    prompt.choice 'Open an Account  📈' do bank_account_first_step end #done
    prompt.choice 'Make a transfer  🔁' do transfer end #done
    prompt.choice 'More options  ❗️' do moreoptions end
-   prompt.choice 'Exit  👋🏻' do puts "Have a great day"end #done
+   prompt.choice 'Exit  👋🏻' do  spinner = TTY::Spinner.new("[:spinner]  Logging Out...")
+    spinner.auto_spin
+    sleep(2)
+    spinner.success('( Logged out. have a great day!)')end #done
     end       
  end
 
  def deposit
+   spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+   spinner.auto_spin
+   sleep(1)
+   spinner.stop('Connected!')
    prompt = TTY::Prompt.new
    puts "Which account do you want to deposit into"
    search  = User.find_by(username: @username)
@@ -189,6 +204,10 @@ class CommandLineInterface
  end
 
  def withdrawal
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
    prompt = TTY::Prompt.new
    puts "Which account do you want to withdraw from "
    search  = User.find_by(username: @username)
@@ -231,6 +250,10 @@ class CommandLineInterface
  end
    
  def balances
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
   puts "Welcome back #{@username} these are you balances,"
   search  = User.find_by(username: @username)
   findauser = User.where(id: search).first
@@ -239,9 +262,10 @@ class CommandLineInterface
   bank = Bank.where(id:deposit_id)
   a1 = bank.pluck(:accounts)
   a2 = deposit1.pluck(:funds)
-   table = TTY::Table.new ['Account','Balances'], [[a1, a2]]
-   puts table.render :ascii, multiline: true
     prompt = TTY::Prompt.new
+    paste = prompt.select("Select the account you want to view the balances from", a1)
+    puts "#{a1} = $#{a2}"
+    puts
     prompt.select("What would you like to do next?") do |prompt|
     prompt.enum '.'
     prompt.choice 'Make a deposit/payment' do  deposit end
@@ -251,6 +275,10 @@ class CommandLineInterface
  end
 
  def transfer
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
  prompt = TTY::Prompt.new
  zelle = prompt.yes?("Welcome to our totally not zelle app do you want to make a transfer today?")
     if zelle
@@ -313,6 +341,10 @@ class CommandLineInterface
  end
 
  def closeaccount
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
   search  = User.find_by(username: @username)
   findauser =User.where(id: search).first
   prompt = TTY::Prompt.new
@@ -326,6 +358,10 @@ class CommandLineInterface
  end
 
  def updatephone
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
   search  = User.find_by(username: @username)
   findauser = User.where(id: search).first
   prompt = TTY::Prompt.new
@@ -342,6 +378,10 @@ class CommandLineInterface
  end
 
   def updatepassword
+    spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+    spinner.auto_spin
+    sleep(1)
+    spinner.stop('Connected!')
     search  = User.find_by(username: @username)
     findauser = User.where(id: search).first
     prompt = TTY::Prompt.new
@@ -359,6 +399,10 @@ class CommandLineInterface
  end
 
  def eliteaccount
+  spinner = TTY::Spinner.new("[:spinner] Loading ...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(1)
+  spinner.stop('Connected!')
   spinner = TTY::Spinner.new
   prompt = TTY::Prompt.new
   search  = User.find_by(username: @username)
@@ -419,10 +463,6 @@ class CommandLineInterface
   end
   
  end
-
-#big lettering on beggining if youre a premium member
-
-#try to make font bigger somehow
 
 # fix balances
 end
