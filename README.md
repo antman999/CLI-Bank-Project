@@ -11,6 +11,8 @@ This app is command line take on what a online banking app would look like on th
 - Before running run "bundle". This will install the gems needed to run the app. 
 
   `bundle`
+  
+ - Head over to the seeds file and uncomment the accounts out. 
  
  - Once done to seed the information run 
  
