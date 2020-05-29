@@ -29,7 +29,9 @@ class CommandLineInterface
        spinner = TTY::Spinner.new("[:spinner]  Logging In...")
        spinner.auto_spin
        sleep(2)
-       spinner.success('( Verified ✅)')
+       pastel = Pastel.new
+       system 'clear'
+       pastel.green.bold(spinner.success('( Verified ✅)'))
        menu
       else 
         spinner = TTY::Spinner.new("[:spinner]  Logging In...")
@@ -42,6 +44,7 @@ class CommandLineInterface
        menu.choice 'Forgot my password' do forgotpassword end
        menu.choice 'Ok, lets open an account' do create_profile end
        menu.choice 'Go Back'do welcome end
+       system 'clear'
       end
     end
  end
@@ -60,6 +63,7 @@ class CommandLineInterface
       end
     else 
       puts "either one of the 2 is wrong try again"
+      system 'clear'
       sign_in_menu
     end
  end
@@ -116,6 +120,7 @@ class CommandLineInterface
       sleep(2)
       spinner.success('(✅✅ successful ✅✅)')
       puts "You can now make deposits, withdrawals and open new accounts :)"
+      system 'clear'
       menu
       else 
       bank_account_first_step
@@ -167,8 +172,9 @@ class CommandLineInterface
    prompt.choice 'Exit  👋🏻' do  spinner = TTY::Spinner.new("[:spinner]  Logging Out...")
     spinner.auto_spin
     sleep(2)
-    spinner.success('( Logged out. have a great day!)')end #done
-    end       
+    spinner.success('( Logged out. have a great day!)')
+    system 'clear' end #done
+    end     
  end
 
  def deposit
@@ -199,8 +205,12 @@ class CommandLineInterface
    spinner.auto_spin
    sleep(2)
    spinner.success('(✅✅ successful ✅✅)')
-   puts "Youre all done you can view your balances in the View my balances section"
-   menu
+   puts "Youre all set here is your virtual receipt"
+   table = TTY::Table.new ['Account','Balance'], [[paste,find_account.funds ]]
+    puts table.render(:ascii)
+    prompt.keypress("Press any key to continue to the menu, resumes automatically in :countdown ...", timeout: 15)
+    system 'clear'
+    menu
  end
 
  def withdrawal
@@ -234,8 +244,12 @@ class CommandLineInterface
    spinner.auto_spin
    sleep(2)
    spinner.success('(✅✅ successful ✅✅)')
-   puts "✅✅✅Youre all done you can view your balance in the View my balances section✅✅✅"
-   menu
+   puts "✅✅✅Youre all set here is your virtual receipt✅✅✅"
+   table = TTY::Table.new ['Account','Balance'], [[paste,find_account.funds ]]
+    puts table.render(:ascii)
+    prompt.keypress("Press any key to continue to the menu, resumes automatically in :countdown ...", timeout: 15)
+    system 'clear'
+    menu
    else
    spinner = TTY::Spinner.new("[:spinner]  💵 Verifying withdraw")
    spinner.auto_spin
@@ -255,18 +269,27 @@ class CommandLineInterface
   sleep(1)
   spinner.stop('Connected!')
   puts "Welcome back #{@username} these are you balances,"
+
   search  = User.find_by(username: @username)
   findauser = User.where(id: search).first
   deposit1 = findauser.useraccounts
-  deposit_id = deposit1.pluck(:bank_id).uniq
-  bank = Bank.where(id:deposit_id)
-  a1 = bank.pluck(:accounts)
-  a3 = bank.pluck(:interest_rate)
-  a2 = deposit1.pluck(:funds)
+   findTheAccount = deposit1.map do |v|
+    v.bank_id
+   end
+   nameTheAcccount = Bank.where(id:findTheAccount).uniq
+   accounts = nameTheAcccount.pluck(:accounts)
     prompt = TTY::Prompt.new
-    paste = prompt.select("Select the account you want to view the balances from", a1)
+    paste = prompt.select("Select the account you want to view the balances from", accounts)
+    s = Bank.where(accounts:paste)
+    d = s.map do |v|
+      v.id
+    end
+     h = deposit1.where(bank_id:d)
+     a2=h.pluck(:funds)
+     a3=s.pluck(:interest_rate)
     puts
-    puts "#{a1} = $#{a2} your current intrest rate is #{a3}."
+    pastel = Pastel.new
+    puts pastel.red.bold("#{paste} = $#{a2} your current intrest rate is #{a3}.")
     puts
     prompt.select("What would you like to do next?") do |prompt|
     prompt.enum '.'
@@ -287,6 +310,11 @@ class CommandLineInterface
     ####recipient###
     ask_for_username_for_friend = prompt.ask("Please enter the username of the person you want to transfer to.")
     search_for_friend = User.find_by(username:ask_for_username_for_friend)
+    if search_for_friend
+      spinner = TTY::Spinner.new("[:spinner]  Verifying account")
+      spinner.auto_spin
+      sleep(1)
+      spinner.success('✅✅(Success)✅✅')
     found_friend = User.where(id: search_for_friend).first
     account_for_that_friend = found_friend.useraccounts.first
     bank_id_for_friend = account_for_that_friend.bank_id
@@ -311,19 +339,28 @@ class CommandLineInterface
         find_account_user.decrement!(:funds,amount_for_friend.to_i)
         find_account_friend = Useraccount.all.find_by(user_id:friends_id,bank_id:bank_id_for_friend)
         find_account_friend.increment!(:funds,amount_for_friend.to_i)
-        spinner = TTY::Spinner.new("[:spinner]   🔁 Verifying Transfer 🔁")
+        spinner = TTY::Spinner.new("[:spinner]   🔁 Verifying Transfer 🔁 ")
         spinner.auto_spin
         sleep(2)
-        spinner.success('( 🔁 Success 🔁)')
+        spinner.success('( 🔁 Success 🔁 )')
         puts "Thank you for chosing us your transfer to #{ask_for_username_for_friend} is complete"
-        prompt.select("What would you like to do next?") do |prompt|
-        prompt.enum '.'
-        prompt.choice 'Make a deposit/payment' do  deposit end
-        prompt.choice 'Go back to the main menu' do menu end
-            end
+        puts "✅✅✅Youre all set here is your virtual receipt✅✅✅"
+        table = TTY::Table.new ['Account','Balance'], [[paste_account,find_account_user.funds ]]
+        puts table.render(:ascii)
+        prompt.keypress("Press any key to continue to the menu, resumes automatically in :countdown ...", timeout: 15)
+        system 'clear'
+        menu
         else
         menu
         end
+      else
+        spinner = TTY::Spinner.new("[:spinner]  Verifying account")
+        spinner.auto_spin
+        sleep(1)
+        spinner.success('(❌❌ Error ❌❌)')
+        puts "I cant find that account make sure you spelled it right."
+        transfer
+      end
     else
     menu
     end
@@ -352,6 +389,10 @@ class CommandLineInterface
   prompt = TTY::Prompt.new
   ask_to_close= prompt.yes?("😞 We are really sad to see you go, ARE you 100% sure you want to delete your account. There's no going back, we will mail you a check within 7-10 business days.")
   if ask_to_close
+    spinner = TTY::Spinner.new("[:spinner] Deleting Account...", format: :pulse_2, interval: 20)
+  spinner.auto_spin
+  sleep(2)
+  spinner.stop('Deleted!')
     puts "You're all set your accounts have been closed. Have a great day!"
     User.delete(findauser)
   else
@@ -462,8 +503,6 @@ class CommandLineInterface
     end
    else
     menu
-   end
+  end
  end
-
-# fix balances
 end
